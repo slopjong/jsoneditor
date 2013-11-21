@@ -180,21 +180,14 @@ app.clearFile = function () {
 };
 
 app.resize = function() {
-  var domMenu = document.getElementById('menu');
   var domTreeEditor = document.getElementById('treeEditor');
   var domCodeEditor = document.getElementById('codeEditor');
   var domSplitter = document.getElementById('splitter');
   var domSplitterButtons = document.getElementById('buttons');
   var domSplitterDrag = document.getElementById('drag');
-  var domAd = document.getElementById('ad');
 
   var margin = 15;
-  var width = (window.innerWidth || document.body.offsetWidth ||
-      document.documentElement.offsetWidth);
-  var adWidth = domAd ? domAd.clientWidth : 0;
-  if (adWidth) {
-    width -= (adWidth + margin);
-  }
+  var width = (window.innerWidth || document.body.offsetWidth || document.documentElement.offsetWidth);
 
   if (app.splitter) {
     app.splitter.setWidth(width);
@@ -231,7 +224,7 @@ app.resize = function() {
     }
 
     // resize code editor
-    domCodeEditor.style.display = (value == 0) ? 'none' : '';
+    domCodeEditor.style.display = (value === 0) ? 'none' : '';
     domCodeEditor.style.width = Math.max(Math.round(splitterLeft), 0) + 'px';
     codeEditor.resize();
 
@@ -247,15 +240,5 @@ app.resize = function() {
     domTreeEditor.style.display = (value == 1) ? 'none' : '';
     domTreeEditor.style.left = Math.round(splitterLeft + splitterWidth) + 'px';
     domTreeEditor.style.width = Math.max(Math.round(width - splitterLeft - splitterWidth - 2), 0) + 'px';
-  }
-
-  // align main menu with ads
-  if (domMenu) {
-    if (adWidth) {
-      domMenu.style.right = (margin + (adWidth + margin)) + 'px';
-    }
-    else {
-      domMenu.style.right = margin + 'px';
-    }
   }
 };
