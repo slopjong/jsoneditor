@@ -20,7 +20,7 @@ var JSONEDITOR = './jsoneditor.js',
  * default task
  */
 desc('Execute all tasks');
-task('default', ['clear', 'build', 'minify', 'zip', 'webapp', 'chromeapp'], function () {
+task('default', ['clear', 'build', 'minify', 'zip', 'webapp'], function () {
   console.log('Done');
 });
 

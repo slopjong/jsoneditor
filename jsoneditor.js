@@ -28,7 +28,7 @@
  *
  * @author  Jos de Jong, <wjosdejong@gmail.com>
  * @version 2.3.4
- * @date    2013-11-19
+ * @date    2013-11-21
  */
 (function () {
 

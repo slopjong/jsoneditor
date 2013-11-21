@@ -68,12 +68,6 @@ app.load = function() {
     // notification handler
     app.notify = new Notify();
 
-    // retriever for loading/saving files
-    app.retriever = new FileRetriever({
-      scriptUrl: 'fileretriever.php',
-      notify: app.notify
-    });
-
     // default json document
     var json = {
       "array": [1, 2, 3],
@@ -83,16 +77,6 @@ app.load = function() {
       "object": {"a": "b", "c": "d", "e": "f"},
       "string": "Hello World"
     };
-
-    // load url if query parameters contains a url
-    if (window.QueryParams) {
-      var qp = new QueryParams();
-      var url = qp.getValue('url');
-      if (url) {
-        json = {};
-        app.openUrl(url);
-      }
-    }
 
     // Store whether tree editor or code editor is last changed
     app.lastChanged = undefined;
@@ -108,7 +92,7 @@ app.load = function() {
         app.notify.showError(app.formatError(err));
       }
     });
-    codeEditor.set(json);
+    //codeEditor.set(json);
 
     // tree editor
     container = document.getElementById("treeEditor");
@@ -122,7 +106,6 @@ app.load = function() {
       }
     });
     treeEditor.set(json);
-    // TODO: automatically synchronize data of code and tree editor? (tree editor should keep its state though)
 
     // splitter
     app.splitter = new Splitter({
@@ -149,46 +132,6 @@ app.load = function() {
     // web page resize handler
     jsoneditor.util.addEventListener(window, 'resize', app.resize);
 
-    // clear button
-    var domClear = document.getElementById('clear');
-    domClear.onclick = app.clearFile;
-
-    /* TODO: enable clicking on open to execute the default, "open file"
-     // open button
-     var domOpen = document.getElementById('open');
-     var domOpenMenuButton = document.getElementById('openMenuButton');
-     domOpen.onclick = function (event) {
-     var target = event.target || event.srcElement;
-     if (target == domOpenMenuButton ||
-     (event.offsetX > domOpen.offsetWidth - domOpenMenuButton.offsetWidth)) {
-     // clicked on the menu button
-     }
-     else {
-     app.openFile();
-     }
-     };
-     */
-
-    // menu button open file
-    var domMenuOpenFile = document.getElementById('menuOpenFile');
-    domMenuOpenFile.onclick = function (event) {
-      app.openFile();
-      event.stopPropagation();
-      event.preventDefault();
-    };
-
-    // menu button open url
-    var domMenuOpenUrl = document.getElementById('menuOpenUrl');
-    domMenuOpenUrl.onclick = function (event) {
-      app.openUrl();
-      event.stopPropagation();
-      event.preventDefault();
-    };
-
-    // save button
-    var domSave = document.getElementById('save');
-    domSave.onclick = app.saveFile;
-
     // set focus on the code editor
     codeEditor.focus();
 
@@ -205,76 +148,6 @@ app.load = function() {
       alert(err);
     }
   }
-};
-
-/**
- * Callback method called when a file or url is opened.
- * @param {Error} err
- * @param {String} data
- */
-app.openCallback = function (err, data) {
-  if (!err) {
-    if (data != null) {
-      codeEditor.setText(data);
-      try {
-        var json = jsoneditor.util.parse(data);
-        treeEditor.set(json);
-      }
-      catch (err) {
-        treeEditor.set({});
-        app.notify.showError(app.formatError(err));
-      }
-    }
-  }
-  else {
-    app.notify.showError(err);
-  }
-};
-
-/**
- * Open a file explorer to select a file and open the file
- */
-app.openFile = function() {
-  app.retriever.loadFile(app.openCallback);
-};
-
-/**
- * Open a url. If no url is provided as parameter, a dialog will be opened
- * to select a url.
- * @param {String} [url]
- */
-app.openUrl = function (url) {
-  if (!url) {
-    app.retriever.loadUrlDialog(app.openCallback);
-  }
-  else {
-    app.retriever.loadUrl(url, app.openCallback);
-  }
-};
-
-/**
- * Open a file explorer to save the file.
- */
-app.saveFile = function () {
-  // first synchronize both editors contents
-  if (app.lastChanged == treeEditor) {
-    app.treeToCode();
-  }
-  /* TODO: also sync from code to tree editor? will clear the history ...
-   if (app.lastChanged == codeEditor) {
-   app.CodeToEditor();
-   }
-   */
-  app.lastChanged = undefined;
-
-  // save the text from the code editor
-  // TODO: show a 'saving...' notification
-  var data = codeEditor.getText();
-  app.retriever.saveFile(data, function (err) {
-    if (err) {
-      app.notify.showError(err);
-    }
-  });
 };
 
 /**
