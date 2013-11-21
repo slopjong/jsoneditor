@@ -69,14 +69,7 @@ app.load = function() {
     app.notify = new Notify();
 
     // default json document
-    var json = {
-      "array": [1, 2, 3],
-      "boolean": true,
-      "null": null,
-      "number": 123,
-      "object": {"a": "b", "c": "d", "e": "f"},
-      "string": "Hello World"
-    };
+    var json = {};
 
     // Store whether tree editor or code editor is last changed
     app.lastChanged = undefined;
@@ -164,6 +157,17 @@ app.formatError = function (err) {
             '</a>';
   }
   return message;
+};
+
+/**
+ * Load the file named.json
+ */
+app.loadFile = function (name) {
+  ajax.get(name + '.json', [], function(json)
+  {
+    codeEditor.setText(json);
+    app.CodeToTree();
+  });
 };
 
 /**
