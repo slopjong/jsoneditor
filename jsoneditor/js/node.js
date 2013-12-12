@@ -38,6 +38,7 @@ Node.prototype.setParent = function(parent) {
  * @return {String or null}
  */
 Node.prototype.getParentField = function(node) {
+  var parent_field;
   if (node.parent === undefined) {
     // parent of the root doesn't exist
     parent_field = null;
@@ -45,8 +46,7 @@ Node.prototype.getParentField = function(node) {
     // if there is a parent but no field
     // the parent is the root of the tree
     parent_field = "root";
-  }
-  else {
+  } else {
     parent_field = node.parent.field;
   }
   return parent_field;
