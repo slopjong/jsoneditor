@@ -44,7 +44,7 @@ Constructs a new JSONEditor.
     True by default.
     Only applicable when `mode` is 'tree', 'view', or 'form'.
   - `{Number} indentation`.
-    Number of indentation spaces. 4 by default.
+    Number of indentation spaces. 2 by default.
     Only applicable when `mode` is 'code' or 'text'.
 
 - `{JSON} json`
@@ -175,13 +175,13 @@ In general to parse or stringify JSON data, the browsers built in JSON parser ca
 To create a formatted string from a JSON object, use:
 
 ```js
-var formattedString = JSON.stingify(json, null, 2);
+var formattedString = JSON.stringify(json, null, 2);
 ```
 
 to create a compacted string from a JSON object, use:
 
 ```js
-var compactString = JSON.stingify(json);
+var compactString = JSON.stringify(json);
 ```
 
 To parse a String to a JSON object, use:
