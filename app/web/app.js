@@ -171,6 +171,24 @@ app.loadFile = function (name) {
 };
 
 /**
+ * Load the json schema
+ */
+app.loadSchemas = function () {
+  ajax.get('schemas.json', [], function(json)
+  {
+    app.schemas = {};
+    var schemas = JSON.parse(json);
+    for(var sch in schemas)
+      app.schemas[schemas[sch].id] = schemas[sch];
+  });
+}();
+
+app.currentSchema = function() {
+  var param = jsoneditor.util.getURLParameter('param');
+  return app.schemas[param];
+};
+
+/**
  * Clear the current file
  */
 app.clearFile = function () {
