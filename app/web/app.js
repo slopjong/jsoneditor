@@ -33,6 +33,8 @@
 var treeEditor = null;
 var codeEditor = null;
 
+var SCHEMAS_URL = "schemas.json";
+
 var app = {};
 
 /**
@@ -91,6 +93,7 @@ app.load = function() {
     container = document.getElementById("treeEditor");
     treeEditor = new jsoneditor.JSONEditor(container, {
       mode: 'tree',
+      schemas: app.schemas,
       change: function () {
         app.lastChanged = treeEditor;
       },
@@ -167,6 +170,22 @@ app.loadFile = function (name) {
   {
     codeEditor.setText(json);
     app.CodeToTree();
+  });
+};
+
+/**
+ * Load the json schema
+ */
+app.loadSchemas = function (schemas_url, callback) {
+  ajax.get(schemas_url, [], function(json)
+  {
+    app.schemas = {};
+    var schemas = JSON.parse(json);
+    if(schemas instanceof Array)
+      schemas.forEach(function(schema){
+         app.schemas[schema.id] = schema;
+      });
+    callback();
   });
 };
 

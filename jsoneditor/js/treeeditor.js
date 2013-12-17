@@ -37,6 +37,7 @@ TreeEditor.prototype._create = function (container, options, json) {
   this.dom = {};
   this.highlighter = new Highlighter();
   this.selection = undefined; // will hold the last input selection
+  this.schema = this._getCurrentSchema(options.schemas);
 
   this._setOptions(options);
 
@@ -58,6 +59,18 @@ TreeEditor.prototype._delete = function () {
   if (this.frame && this.container && this.frame.parentNode == this.container) {
     this.container.removeChild(this.frame);
   }
+};
+
+/**
+ * Getter for the schema corresponding to
+ * the current parametter being edited in SA
+ * @returns {object}
+ */
+TreeEditor.prototype._getCurrentSchema = function (schemas) {
+  // here we retrieve the name of the param from the url
+  // but this is temporary, until we plug the tool to SA
+  var param = util.getURLParameter('param');
+  return schemas[param];
 };
 
 /**
