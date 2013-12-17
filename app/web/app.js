@@ -33,6 +33,8 @@
 var treeEditor = null;
 var codeEditor = null;
 
+var SCHEMAS_URL = "schemas.json";
+
 var app = {};
 
 /**
@@ -173,15 +175,16 @@ app.loadFile = function (name) {
 /**
  * Load the json schema
  */
-app.loadSchemas = function () {
-  ajax.get('schemas.json', [], function(json)
+app.loadSchemas = function (schemas_url) {
+  ajax.get(schemas_url, [], function(json)
   {
     app.schemas = {};
     var schemas = JSON.parse(json);
-    for(var sch in schemas)
-      app.schemas[schemas[sch].id] = schemas[sch];
+    if(typeof schemas === "object")
+      for(var sch in schemas)
+        app.schemas[schemas[sch].id] = schemas[sch];
   });
-}();
+}(SCHEMAS_URL);
 
 /**
  * Getter for the schema corresponding to
