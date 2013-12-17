@@ -183,7 +183,14 @@ app.loadSchemas = function () {
   });
 }();
 
-app.currentSchema = function() {
+/**
+ * Getter for the schema corresponding to
+ * the current parametter being edited in SA
+ * @returns {object}
+ */
+app.getCurrentSchema = function() {
+  // here we retrieve the name of the param from the url
+  // but this is temporary, until we plug the tool to SA
   var param = jsoneditor.util.getURLParameter('param');
   return app.schemas[param];
 };
