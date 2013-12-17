@@ -93,6 +93,7 @@ app.load = function() {
     container = document.getElementById("treeEditor");
     treeEditor = new jsoneditor.JSONEditor(container, {
       mode: 'tree',
+      schemas: app.schemas,
       change: function () {
         app.lastChanged = treeEditor;
       },
@@ -185,18 +186,6 @@ app.loadSchemas = function (schemas_url) {
         app.schemas[schemas[sch].id] = schemas[sch];
   });
 }(SCHEMAS_URL);
-
-/**
- * Getter for the schema corresponding to
- * the current parametter being edited in SA
- * @returns {object}
- */
-app.getCurrentSchema = function() {
-  // here we retrieve the name of the param from the url
-  // but this is temporary, until we plug the tool to SA
-  var param = jsoneditor.util.getURLParameter('param');
-  return app.schemas[param];
-};
 
 /**
  * Clear the current file
