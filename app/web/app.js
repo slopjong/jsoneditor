@@ -176,16 +176,18 @@ app.loadFile = function (name) {
 /**
  * Load the json schema
  */
-app.loadSchemas = function (schemas_url) {
+app.loadSchemas = function (schemas_url, callback) {
   ajax.get(schemas_url, [], function(json)
   {
     app.schemas = {};
     var schemas = JSON.parse(json);
-    if(typeof schemas === "object")
-      for(var sch in schemas)
-        app.schemas[schemas[sch].id] = schemas[sch];
+    if(schemas instanceof Array)
+      schemas.forEach(function(schema){
+         app.schemas[schema.id] = schema;
+      });
+    callback();
   });
-}(SCHEMAS_URL);
+};
 
 /**
  * Clear the current file
