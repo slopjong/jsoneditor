@@ -34,6 +34,7 @@ var treeEditor = null;
 var codeEditor = null;
 
 var SCHEMAS_URL = "schemas.json";
+var SCHEMA_NAME = jsoneditor.util.getURLParameter('param');
 
 var app = {};
 
@@ -94,6 +95,7 @@ app.load = function() {
     treeEditor = new jsoneditor.JSONEditor(container, {
       mode: 'tree',
       schemas: app.schemas,
+      name: SCHEMA_NAME in app.schemas ? SCHEMA_NAME : undefined,
       change: function () {
         app.lastChanged = treeEditor;
       },

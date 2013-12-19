@@ -168,6 +168,13 @@ AppendNode.prototype.showContextMenu = function (anchor, onClose) {
     }
   ];
 
+  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
+    console.log("parent is unknown so no specific context menu here!");
+  }
+  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
+    console.log("parent is: " + node.parent.field);
+  }
+
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
 };

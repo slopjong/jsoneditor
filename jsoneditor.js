@@ -28,7 +28,7 @@
  *
  * @author  Jos de Jong, <wjosdejong@gmail.com>
  * @version 2.3.4
- * @date    2013-11-21
+ * @date    2013-12-19
  */
 (function () {
 
@@ -296,6 +296,24 @@ TreeEditor.prototype._create = function (container, options, json) {
   this._createTable();
 
   this.set(json || {});
+
+  this.schemas = options.schemas;
+  this.selectSchema(options.name);
+};
+
+/**
+ * Define the current schema
+ * @param {String} name
+ */
+TreeEditor.prototype.selectSchema = function(name) {
+  if(name in this.schemas) {
+    this.schema = this.schemas[name];
+    this.setName(name);
+  }
+  else {
+    this.schema = null;
+    this.setName(undefined);
+  }
 };
 
 /**
@@ -4037,6 +4055,16 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     });
   }
 
+  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
+    console.log("parent is unknown so no specific context menu here!");
+  }
+  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
+    console.log("parent is: " + node.parent.field);
+  }
+  else {
+    console.log("parent is the root, so no context menu here!");
+  }
+
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
 };
@@ -4335,6 +4363,13 @@ AppendNode.prototype.showContextMenu = function (anchor, onClose) {
       ]
     }
   ];
+
+  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
+    console.log("parent is unknown so no specific context menu here!");
+  }
+  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
+    console.log("parent is: " + node.parent.field);
+  }
 
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
@@ -5503,6 +5538,10 @@ Highlighter.prototype.unlock = function () {
 
 // create namespace
 util = {};
+
+util.getURLParameter = function getURLParameter (name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+};
 
 /**
  * Parse JSON using the parser built-in in the browser.
