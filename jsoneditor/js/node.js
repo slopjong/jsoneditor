@@ -34,16 +34,6 @@ Node.prototype.setParent = function(parent) {
 };
 
 /**
- * Test if the parent is the root of the tree
- * @return {boolean}
- */
-Node.prototype.isChildOfTheRoot = function() {
-  // if there is a parent but no field
-  // the parent is the root of the tree
-  return this.hasOwnProperty('parent') && this.parent.field === undefined;
-};
-
-/**
  * Set field
  * @param {String}  field
  * @param {boolean} [fieldEditable]
@@ -2737,6 +2727,16 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
         node._onRemove();
       }
     });
+  }
+
+  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
+    console.log("parent is unknown so no specific context menu here!");
+  }
+  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
+    console.log("parent is: " + node.parent.field);
+  }
+  else {
+    console.log("parent is the root, so no context menu here!");
   }
 
   var menu = new ContextMenu(items, {close: onClose});
