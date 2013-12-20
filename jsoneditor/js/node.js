@@ -2733,11 +2733,14 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     console.log("parent is unknown so no specific context menu here!");
   }
   else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
-    console.log("parent is: " + node.parent.field);
+    console.log("parent is: " + node.parent.field + "\npossible children:");
+    var possible_children = this.editor.map_schema[node.parent.field];
+    console.log(possible_children);
   }
   else {
     console.log("parent is the root, so no context menu here!");
   }
+
 
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
