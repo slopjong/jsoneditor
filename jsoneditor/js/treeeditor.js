@@ -60,11 +60,27 @@ TreeEditor.prototype._create = function (container, options, json) {
 TreeEditor.prototype.selectSchema = function(name) {
   if(name in this.schemas) {
     this.schema = this.schemas[name];
+    this.map_schema = {};
+    var type = "properties" in this.schema ? "properties" : "items";
+    this.mapSchema(name, this.schema[type]);
     this.setName(name);
   }
   else {
     this.schema = null;
+    this.map_schema = null;
     this.setName(undefined);
+  }
+};
+
+TreeEditor.prototype.mapSchema = function(parent, sch) {
+  for(var s in sch) {
+    if(this.map_schema[parent] === undefined)
+      this.map_schema[parent] = [];
+    this.map_schema[parent].push(sch[s]);
+    if("properties" in sch[s])
+      this.mapSchema(sch[s].id, sch[s].properties);
+    if("items" in sch[s])
+      this.mapSchema(sch[s].id, sch[s].items);
   }
 };
 
