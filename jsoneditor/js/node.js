@@ -2610,6 +2610,9 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   }
 
   if (this.parent && this.parent._hasChilds()) {
+
+    var possible_children = this.editor.map_schema[node.parent.field];
+
     // create a separator
     items.push({
       'type': 'separator'
@@ -2618,7 +2621,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     // create append button (for last child node only)
     var childs = node.parent.childs;
     if (node == childs[childs.length - 1]) {
-      items.push({
+      var append_menu = {
         'text': 'Append',
         'title': 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
         'submenuTitle': 'Select the type of the field to be appended',
@@ -2660,11 +2663,17 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
             }
           }
         ]
+      };
+      node._addItemsToMenu(possible_children, append_menu, function ()
+      {
+        node._onAppend(this.title, this.value);
       });
+
+      items.push(append_menu);
     }
 
     // create insert button
-    items.push({
+    var insert_menu = {
       'text': 'Insert',
       'title': 'Insert a new field with type \'auto\' before this field (Ctrl+Ins)',
       'submenuTitle': 'Select the type of the field to be inserted',
@@ -2706,7 +2715,12 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
           }
         }
       ]
+    };
+    node._addItemsToMenu(possible_children, insert_menu, function ()
+    {
+      node._onAppend(this.title, this.value);
     });
+    items.push(insert_menu);
 
     // create duplicate button
     items.push({
@@ -2729,21 +2743,36 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     });
   }
 
-  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
-    console.log("parent is unknown so no specific context menu here!");
-  }
-  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
-    console.log("parent is: " + node.parent.field + "\npossible children:");
-    var possible_children = this.editor.map_schema[node.parent.field];
-    console.log(possible_children);
-  }
-  else {
-    console.log("parent is the root, so no context menu here!");
-  }
-
-
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
+};
+
+Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
+{
+  var separator = {'type': 'separator'};
+  var items_retrieved = this._analyseSchema(possible_children, onclick);
+  menu.submenu = menu.submenu.concat(separator).concat(items_retrieved);
+};
+
+Node.prototype._analyseSchema = function (schema, onclick)
+{
+  var items = [];
+  schema.forEach(function(obj) {
+    var text = obj.id;
+    var title = text;
+    var class_name = ['array', 'string', 'object'].indexOf(obj.type) < 0 ? "type-auto" : "type-" + obj.type;
+    var value = {};
+    if(obj.default === undefined)
+      switch(obj.type)
+      {
+        case "object": value = {}; break;
+        case "array" : value = []; break;
+        case "string": value = ""; break;
+      }
+    else value = obj.default;
+    items.push({"text": text, "className": class_name, "title": title , "value": value, 'click': onclick});
+  });
+  return items;
 };
 
 /**
