@@ -2611,7 +2611,9 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
 
   if (this.parent && this.parent._hasChilds()) {
 
-    var possible_children = this.editor.map_schema[node.parent.field];
+    var possible_children = null;
+    if(this.editor.map_schema !== null && node.parent.field !== undefined)
+      possible_children = this.editor.map_schema[node.parent.field];
 
     // create a separator
     items.push({
@@ -2664,10 +2666,12 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
           }
         ]
       };
-      node._addItemsToMenu(possible_children, append_menu, function ()
-      {
-        node._onAppend(this.title, this.value);
-      });
+
+      if(possible_children)
+        node._addItemsToMenu(possible_children, append_menu, function ()
+        {
+          node._onAppend(this.title, this.value);
+        });
 
       items.push(append_menu);
     }
@@ -2716,10 +2720,13 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
         }
       ]
     };
-    node._addItemsToMenu(possible_children, insert_menu, function ()
-    {
-      node._onAppend(this.title, this.value);
-    });
+
+    if(possible_children)
+      node._addItemsToMenu(possible_children, insert_menu, function ()
+      {
+        node._onAppend(this.title, this.value);
+      });
+
     items.push(insert_menu);
 
     // create duplicate button
@@ -2751,16 +2758,16 @@ Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
 {
   var separator = {'type': 'separator'};
   var items_retrieved = this._analyseSchema(possible_children, onclick);
-  menu.submenu = menu.submenu.concat(separator).concat(items_retrieved);
+  menu.submenu = menu.submenu.concat(separator, items_retrieved);
 };
 
 Node.prototype._analyseSchema = function (schema, onclick)
 {
   var items = [];
+  var types = ['array', 'string', 'object'];
   schema.forEach(function(obj) {
     var text = obj.id;
-    var title = text;
-    var class_name = ['array', 'string', 'object'].indexOf(obj.type) < 0 ? "type-auto" : "type-" + obj.type;
+    var class_name = "type-" + (types.indexOf(obj.type) < 0 ? "auto" : obj.type);
     var value = {};
     if(obj.default === undefined)
       switch(obj.type)
@@ -2770,7 +2777,14 @@ Node.prototype._analyseSchema = function (schema, onclick)
         case "string": value = ""; break;
       }
     else value = obj.default;
-    items.push({"text": text, "className": class_name, "title": title , "value": value, 'click': onclick});
+    items.push(
+    {
+      "text": text,
+      "className": class_name,
+      "title": text,
+      "value": value,
+      'click': onclick
+    });
   });
   return items;
 };

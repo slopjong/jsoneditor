@@ -121,7 +121,11 @@ AppendNode.prototype.isVisible = function () {
 AppendNode.prototype.showContextMenu = function (anchor, onClose) {
   var node = this;
   var titles = Node.TYPE_TITLES;
-  var possible_children = this.editor.map_schema[node.parent.field];
+  var possible_children = null;
+
+  if(this.editor.map_schema !== null && node.parent.field !== undefined)
+    possible_children = this.editor.map_schema[node.parent.field];
+
   var append_menu = {
     'text': 'Append',
     'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
@@ -165,10 +169,12 @@ AppendNode.prototype.showContextMenu = function (anchor, onClose) {
       }
     ]
   };
-  node._addItemsToMenu(possible_children, append_menu, function ()
-  {
-    node._onAppend(this.title, this.value);
-  });
+  if(possible_children)
+    node._addItemsToMenu(possible_children, append_menu, function ()
+    {
+      node._onAppend(this.title, this.value);
+    });
+
   var items = [
     // create append button
     append_menu
