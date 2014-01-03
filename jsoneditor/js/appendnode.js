@@ -121,61 +121,64 @@ AppendNode.prototype.isVisible = function () {
 AppendNode.prototype.showContextMenu = function (anchor, onClose) {
   var node = this;
   var titles = Node.TYPE_TITLES;
+  var possible_children = null;
+
+  if(this.editor.map_schema !== null && node.parent.field !== undefined)
+    possible_children = this.editor.map_schema[node.parent.field];
+
+  var append_menu = {
+    'text': 'Append',
+    'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
+    'submenuTitle': 'Select the type of the field to be appended',
+    'className': 'insert',
+    'click': function () {
+      node._onAppend('', '', 'auto');
+    },
+    'submenu': [
+      {
+        'text': 'Auto',
+        'className': 'type-auto',
+        'title': titles.auto,
+        'click': function () {
+          node._onAppend('', '', 'auto');
+        }
+      },
+      {
+        'text': 'Array',
+        'className': 'type-array',
+        'title': titles.array,
+        'click': function () {
+          node._onAppend('', []);
+        }
+      },
+      {
+        'text': 'Object',
+        'className': 'type-object',
+        'title': titles.object,
+        'click': function () {
+          node._onAppend('', {});
+        }
+      },
+      {
+        'text': 'String',
+        'className': 'type-string',
+        'title': titles.string,
+        'click': function () {
+          node._onAppend('', '', 'string');
+        }
+      }
+    ]
+  };
+  if(possible_children)
+    node._addItemsToMenu(possible_children, append_menu, function ()
+    {
+      node._onAppend(this.title, this.value);
+    });
+
   var items = [
     // create append button
-    {
-      'text': 'Append',
-      'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
-      'submenuTitle': 'Select the type of the field to be appended',
-      'className': 'insert',
-      'click': function () {
-        node._onAppend('', '', 'auto');
-      },
-      'submenu': [
-        {
-          'text': 'Auto',
-          'className': 'type-auto',
-          'title': titles.auto,
-          'click': function () {
-            node._onAppend('', '', 'auto');
-          }
-        },
-        {
-          'text': 'Array',
-          'className': 'type-array',
-          'title': titles.array,
-          'click': function () {
-            node._onAppend('', []);
-          }
-        },
-        {
-          'text': 'Object',
-          'className': 'type-object',
-          'title': titles.object,
-          'click': function () {
-            node._onAppend('', {});
-          }
-        },
-        {
-          'text': 'String',
-          'className': 'type-string',
-          'title': titles.string,
-          'click': function () {
-            node._onAppend('', '', 'string');
-          }
-        }
-      ]
-    }
+    append_menu
   ];
-
-  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
-    console.log("parent is unknown so no specific context menu here!");
-  }
-  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
-    console.log("parent is: " + node.parent.field + "\npossible children:");
-    var possible_children = this.editor.map_schema[node.parent.field];
-    console.log(possible_children);
-  }
 
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
