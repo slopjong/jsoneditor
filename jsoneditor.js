@@ -28,7 +28,7 @@
  *
  * @author  Jos de Jong, <wjosdejong@gmail.com>
  * @version 2.3.4
- * @date    2013-12-19
+ * @date    2014-01-09
  */
 (function () {
 
@@ -308,11 +308,27 @@ TreeEditor.prototype._create = function (container, options, json) {
 TreeEditor.prototype.selectSchema = function(name) {
   if(name in this.schemas) {
     this.schema = this.schemas[name];
+    this.map_schema = {};
+    var type = "properties" in this.schema ? "properties" : "items";
+    this.mapSchema(name, this.schema[type]);
     this.setName(name);
   }
   else {
     this.schema = null;
+    this.map_schema = null;
     this.setName(undefined);
+  }
+};
+
+TreeEditor.prototype.mapSchema = function(parent, sch) {
+  for(var s in sch) {
+    if(this.map_schema[parent] === undefined)
+      this.map_schema[parent] = [];
+    this.map_schema[parent].push(sch[s]);
+    if("properties" in sch[s])
+      this.mapSchema(sch[s].id, sch[s].properties);
+    if("items" in sch[s])
+      this.mapSchema(sch[s].id, sch[s].items);
   }
 };
 
@@ -3936,6 +3952,11 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   }
 
   if (this.parent && this.parent._hasChilds()) {
+
+    var possible_children = null;
+    if(this.editor.map_schema !== null && node.parent.field !== undefined)
+      possible_children = this.editor.map_schema[node.parent.field];
+
     // create a separator
     items.push({
       'type': 'separator'
@@ -3944,7 +3965,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     // create append button (for last child node only)
     var childs = node.parent.childs;
     if (node == childs[childs.length - 1]) {
-      items.push({
+      var append_menu = {
         'text': 'Append',
         'title': 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
         'submenuTitle': 'Select the type of the field to be appended',
@@ -3986,11 +4007,19 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
             }
           }
         ]
-      });
+      };
+
+      if(possible_children)
+        node._addItemsToMenu(possible_children, append_menu, function ()
+        {
+          node._onAppend(this.title, this.value);
+        });
+
+      items.push(append_menu);
     }
 
     // create insert button
-    items.push({
+    var insert_menu = {
       'text': 'Insert',
       'title': 'Insert a new field with type \'auto\' before this field (Ctrl+Ins)',
       'submenuTitle': 'Select the type of the field to be inserted',
@@ -4032,7 +4061,15 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
           }
         }
       ]
-    });
+    };
+
+    if(possible_children)
+      node._addItemsToMenu(possible_children, insert_menu, function ()
+      {
+        node._onAppend(this.title, this.value);
+      });
+
+    items.push(insert_menu);
 
     // create duplicate button
     items.push({
@@ -4055,18 +4092,43 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     });
   }
 
-  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
-    console.log("parent is unknown so no specific context menu here!");
-  }
-  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
-    console.log("parent is: " + node.parent.field);
-  }
-  else {
-    console.log("parent is the root, so no context menu here!");
-  }
-
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
+};
+
+Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
+{
+  var separator = {'type': 'separator'};
+  var items_retrieved = this._analyseSchema(possible_children, onclick);
+  menu.submenu = menu.submenu.concat(separator, items_retrieved);
+};
+
+Node.prototype._analyseSchema = function (schema, onclick)
+{
+  var items = [];
+  var types = ['array', 'string', 'object'];
+  schema.forEach(function(obj) {
+    var text = obj.id;
+    var class_name = "type-" + (types.indexOf(obj.type) < 0 ? "auto" : obj.type);
+    var value = {};
+    if(obj.default === undefined)
+      switch(obj.type)
+      {
+        case "object": value = {}; break;
+        case "array" : value = []; break;
+        case "string": value = ""; break;
+      }
+    else value = obj.default;
+    items.push(
+    {
+      "text": text,
+      "className": class_name,
+      "title": text,
+      "value": value,
+      'click': onclick
+    });
+  });
+  return items;
 };
 
 /**
@@ -4317,59 +4379,64 @@ AppendNode.prototype.isVisible = function () {
 AppendNode.prototype.showContextMenu = function (anchor, onClose) {
   var node = this;
   var titles = Node.TYPE_TITLES;
+  var possible_children = null;
+
+  if(this.editor.map_schema !== null && node.parent.field !== undefined)
+    possible_children = this.editor.map_schema[node.parent.field];
+
+  var append_menu = {
+    'text': 'Append',
+    'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
+    'submenuTitle': 'Select the type of the field to be appended',
+    'className': 'insert',
+    'click': function () {
+      node._onAppend('', '', 'auto');
+    },
+    'submenu': [
+      {
+        'text': 'Auto',
+        'className': 'type-auto',
+        'title': titles.auto,
+        'click': function () {
+          node._onAppend('', '', 'auto');
+        }
+      },
+      {
+        'text': 'Array',
+        'className': 'type-array',
+        'title': titles.array,
+        'click': function () {
+          node._onAppend('', []);
+        }
+      },
+      {
+        'text': 'Object',
+        'className': 'type-object',
+        'title': titles.object,
+        'click': function () {
+          node._onAppend('', {});
+        }
+      },
+      {
+        'text': 'String',
+        'className': 'type-string',
+        'title': titles.string,
+        'click': function () {
+          node._onAppend('', '', 'string');
+        }
+      }
+    ]
+  };
+  if(possible_children)
+    node._addItemsToMenu(possible_children, append_menu, function ()
+    {
+      node._onAppend(this.title, this.value);
+    });
+
   var items = [
     // create append button
-    {
-      'text': 'Append',
-      'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
-      'submenuTitle': 'Select the type of the field to be appended',
-      'className': 'insert',
-      'click': function () {
-        node._onAppend('', '', 'auto');
-      },
-      'submenu': [
-        {
-          'text': 'Auto',
-          'className': 'type-auto',
-          'title': titles.auto,
-          'click': function () {
-            node._onAppend('', '', 'auto');
-          }
-        },
-        {
-          'text': 'Array',
-          'className': 'type-array',
-          'title': titles.array,
-          'click': function () {
-            node._onAppend('', []);
-          }
-        },
-        {
-          'text': 'Object',
-          'className': 'type-object',
-          'title': titles.object,
-          'click': function () {
-            node._onAppend('', {});
-          }
-        },
-        {
-          'text': 'String',
-          'className': 'type-string',
-          'title': titles.string,
-          'click': function () {
-            node._onAppend('', '', 'string');
-          }
-        }
-      ]
-    }
+    append_menu
   ];
-
-  if(node.hasOwnProperty('parent') && node.parent.field === undefined) {
-    console.log("parent is unknown so no specific context menu here!");
-  }
-  else if(node.hasOwnProperty('parent') && node.parent.hasOwnProperty('field')) {
-    console.log("parent is: " + node.parent.field);
-  }
 
   var menu = new ContextMenu(items, {close: onClose});
   menu.show(anchor);
@@ -5538,10 +5605,6 @@ Highlighter.prototype.unlock = function () {
 
 // create namespace
 util = {};
-
-util.getURLParameter = function getURLParameter (name) {
-  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
-};
 
 /**
  * Parse JSON using the parser built-in in the browser.

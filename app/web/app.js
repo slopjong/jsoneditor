@@ -34,7 +34,7 @@ var treeEditor = null;
 var codeEditor = null;
 
 var SCHEMAS_URL = "schemas.json";
-var SCHEMA_NAME = jsoneditor.util.getURLParameter('param');
+var SCHEMA_NAME = "";
 
 var app = {};
 
