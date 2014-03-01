@@ -1,27 +1,38 @@
 {
-  "name": "jsoneditor",
-  "version": "2.3.6",
-  "main": "jsoneditor.js",
-  "description": "A web-based tool to view, edit and format JSON",
-  "tags": [
-    "json",
-    "editor",
-    "viewer",
-    "formatter"
-  ],
-  "author": "Jos de Jong <wjosdejong@gmail.com>",
-  "homepage": "http://jsoneditoronline.org/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/josdejong/jsoneditor.git"
-  },
-  "bugs": "https://github.com/josdejong/jsoneditor/issues",
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {
-    "jake": "latest",
-    "jake-utils": "latest",
-    "archiver": "latest",
-    "clean-css": "latest"
-  }
+    "name": "jsoneditor",
+    "version": "2.3.6",
+    "main": "jsoneditor.js",
+    "description": "A web-based tool to view, edit and format JSON",
+    "tags": [
+        "json",
+        "editor",
+        "viewer",
+        "formatter"
+    ],
+    "author": "Jos de Jong <wjosdejong@gmail.com>",
+    "homepage": "http://jsoneditoronline.org/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/josdejong/jsoneditor.git"
+    },
+    "bugs": "https://github.com/josdejong/jsoneditor/issues",
+    "scripts": {},
+    "dependencies": {},
+    "devDependencies": {
+        "jake": "latest",
+        "jake-utils": "latest",
+        "archiver": "latest",
+        "clean-css": "latest",
+        "grunt": "~0.4.2",
+        "grunt-bower-install": "~0.7.0",
+        "grunt-concurrent": "~0.4.1",
+        "grunt-contrib-clean": "~0.5.0",
+        "grunt-contrib-connect": "~0.5.0",
+        "grunt-contrib-copy": "~0.4.1",
+        "grunt-contrib-watch": "~0.5.2",
+        "grunt-newer": "~0.5.4",
+        "grunt-exec": "~0.4.5",
+        "load-grunt-tasks": "~0.2.0",
+        "time-grunt": "~0.2.1"
+    }
 }
