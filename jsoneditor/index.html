@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="css/jsoneditor.css" />
+    <link rel="stylesheet" href="css/contextmenu.css" />
+    <link rel="stylesheet" href="css/menu.css" />
+    <link rel="stylesheet" href="css/searchbox.css" />
+
+    <style type="text/css">
+        #jsoneditor {
+            width: 500px;
+            height: 500px;
+        }
+    </style>
+
+    <!-- ace code editor -->
+    <script type="text/javascript" src="../lib/ace/ace.js"></script>
+    <script type="text/javascript" src="../lib/ace/mode-json.js"></script>
+    <script type="text/javascript" src="../lib/ace/theme-textmate.js"></script>
+    <script type="text/javascript" src="../lib/ace/theme-jsoneditor.js"></script>
+
+    <!-- json/spaceapi tree editor -->
+    <script src="js/jsoneditor.js"></script>
+    <script src="js/treeeditor.js"></script>
+    <script src="js/texteditor.js"></script>
+    <script src="js/node.js"></script>
+    <script src="js/appendnode.js"></script>
+    <script src="js/contextmenu.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/modebox.js"></script>
+    <script src="js/searchbox.js"></script>
+    <script src="js/highlighter.js"></script>
+    <script src="js/header.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/module.js"></script>
+
+</head>
+<body>
+
+    <p>
+        <button id="setJSON">Set JSON</button>
+        <button id="getJSON">Get JSON</button>
+    </p>
+
+    <div id="jsoneditor"></div>
+
+    <script type="text/javascript" >
+
+        // create the editor
+        var container = document.getElementById('jsoneditor');
+
+        var json = {
+            "api": "0.13",
+            "space": "The space name",
+            "logo": "http://your-space.com/logo.png",
+            "url": "http://example.com",
+            "location": {
+                "address": "see the documentation",
+                "lon": 5.973817,
+                "lat": 39.240431
+            },
+            "spacefed": {
+                "spacenet": false,
+                "spacesaml": false,
+                "spacephone": false
+            },
+            "contact": {
+                "twitter": "@example",
+                "email": "e@xample.com",
+                "irc": "irc://irc.freenode.net/example",
+                "ml": "public@lists.example.com",
+                "issue_mail": "ZUB4YW1wbGUuY29tCg=="
+            },
+            "issue_report_channels": [
+                "issue_mail"
+            ],
+            "state": {
+                "open": null
+            },
+            "projects": [
+                "http://github.com/example"
+            ],
+            "cache": {
+                "schedule": "m.02"
+            },
+            "sensors": {
+                "temperature": [
+                    {
+                        "value": null,
+                        "unit": "°C",
+                        "location": "Roof"
+                    },
+                    {
+                        "value": null,
+                        "unit": "°De",
+                        "location": "Lab"
+                    }
+                ]
+            }
+        };
+
+        var editor = new jsoneditor.JSONEditor(
+            container,
+            {
+                mode: "spaceapi",
+                modes: [ // allowed modes
+                    'code',
+                    'spaceapi'
+                ]
+            },
+            json
+        );
+
+        // set json
+        document.getElementById('setJSON').onclick = function () {
+            var json = {
+                'array': [1, 2, 3],
+                'boolean': true,
+                'null': null,
+                'number': 123,
+                'object': {'a': 'b', 'c': 'd'},
+                'string': 'Hello World'
+            };
+            editor.set(json);
+        };
+
+        // get json
+        document.getElementById('getJSON').onclick = function () {
+            var json = editor.get();
+            alert(JSON.stringify(json, null, 2));
+        };
+    </script>
+
+</body>
+</html>

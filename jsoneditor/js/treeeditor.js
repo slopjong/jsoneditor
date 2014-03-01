@@ -743,6 +743,11 @@ JSONEditor.modes.form = {
   editor: TreeEditor,
   data: 'json'
 };
+JSONEditor.modes.spaceapi = {
+  editor: TreeEditor,
+  data: 'json'
+};
+
 // Deprecated modes (deprecated since version 2.2.0)
 JSONEditor.modes.editor = {
   editor: TreeEditor,

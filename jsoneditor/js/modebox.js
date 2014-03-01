@@ -57,6 +57,13 @@ function createModeBox(editor, modes, current) {
       'click': function () {
         switchMode('view');
       }
+    },
+    spaceapi: {
+      'text': 'SpaceAPI',
+      'title': 'Switch to SpaceAPI editor',
+      'click': function () {
+        switchMode('spaceapi');
+      }
     }
   };
 
