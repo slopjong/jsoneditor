@@ -59,7 +59,7 @@ module.exports = function (grunt) {
                     open: true,
                     base: [
                         '.tmp',
-                        './'
+                        'jsoneditor'
                     ]
                 }
             }
