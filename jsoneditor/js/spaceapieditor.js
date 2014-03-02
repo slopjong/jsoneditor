@@ -1,5 +1,5 @@
 /**
- * @constructor TreeEditor
+ * @constructor SpaceApiEditor
  * @param {Element} container    Container element
  * @param {Object}  [options]    Object with options. available options:
  *                               {String} mode      Editor mode. Available values:
@@ -14,22 +14,22 @@
  *                               {String} name      Field name for the root node.
  * @param {Object | undefined} json JSON object
  */
-function TreeEditor(container, options, json) {
-  if (!(this instanceof TreeEditor)) {
-    throw new Error('TreeEditor constructor called without "new".');
+function SpaceApiEditor(container, options, json) {
+  if (!(this instanceof SpaceApiEditor)) {
+    throw new Error('SpaceApiEditor constructor called without "new".');
   }
 
   this._create(container, options, json);
 }
 
 /**
- * Create the TreeEditor
+ * Create the SpaceApiEditor
  * @param {Element} container    Container element
  * @param {Object}  [options]    See description in constructor
  * @param {Object | undefined} json JSON object
  * @private
  */
-TreeEditor.prototype._create = function (container, options, json) {
+SpaceApiEditor.prototype._create = function (container, options, json) {
   if (!container) {
     throw new Error('No container element provided.');
   }
@@ -54,7 +54,7 @@ TreeEditor.prototype._create = function (container, options, json) {
  * Detach the editor from the DOM
  * @private
  */
-TreeEditor.prototype._delete = function () {
+SpaceApiEditor.prototype._delete = function () {
   if (this.frame && this.container && this.frame.parentNode == this.container) {
     this.container.removeChild(this.frame);
   }
@@ -65,7 +65,7 @@ TreeEditor.prototype._delete = function () {
  * @param {Object}  [options]    See description in constructor
  * @private
  */
-TreeEditor.prototype._setOptions = function (options) {
+SpaceApiEditor.prototype._setOptions = function (options) {
   this.options = {
     search: true,
     history: true,
@@ -113,7 +113,7 @@ TreeEditor.prototype._setOptions = function (options) {
 };
 
 // node currently being edited
-TreeEditor.focusNode = undefined;
+SpaceApiEditor.focusNode = undefined;
 
 /**
  * Set JSON object in editor
@@ -121,7 +121,7 @@ TreeEditor.focusNode = undefined;
  * @param {String}             [name]    Optional field name for the root node.
  *                                       Can also be set using setName(name).
  */
-TreeEditor.prototype.set = function (json, name) {
+SpaceApiEditor.prototype.set = function (json, name) {
   // adjust field name for root node
   if (name) {
     // TODO: deprecated since version 2.2.0. Cleanup some day.
@@ -162,10 +162,10 @@ TreeEditor.prototype.set = function (json, name) {
  * Get JSON object from editor
  * @return {Object | undefined} json
  */
-TreeEditor.prototype.get = function () {
+SpaceApiEditor.prototype.get = function () {
   // remove focus from currently edited node
-  if (TreeEditor.focusNode) {
-    TreeEditor.focusNode.blur();
+  if (SpaceApiEditor.focusNode) {
+    SpaceApiEditor.focusNode.blur();
   }
 
   if (this.node) {
@@ -177,18 +177,18 @@ TreeEditor.prototype.get = function () {
 };
 
 /**
- * Get the text contents of the TreeEditor
+ * Get the text contents of the SpaceApiEditor
  * @return {String} jsonText
  */
-TreeEditor.prototype.getText = function() {
+SpaceApiEditor.prototype.getText = function() {
   return JSON.stringify(this.get());
 };
 
 /**
- * Set the text contents of the TreeEditor
+ * Set the text contents of the SpaceApiEditor
  * @param {String} jsonText
  */
-TreeEditor.prototype.setText = function(jsonText) {
+SpaceApiEditor.prototype.setText = function(jsonText) {
   this.set(util.parse(jsonText));
 };
 
@@ -196,7 +196,7 @@ TreeEditor.prototype.setText = function(jsonText) {
  * Set a field name for the root node.
  * @param {String | undefined} name
  */
-TreeEditor.prototype.setName = function (name) {
+SpaceApiEditor.prototype.setName = function (name) {
   this.options.name = name;
   if (this.node) {
     this.node.updateField(this.options.name);
@@ -207,14 +207,14 @@ TreeEditor.prototype.setName = function (name) {
  * Get the field name for the root node.
  * @return {String | undefined} name
  */
-TreeEditor.prototype.getName = function () {
+SpaceApiEditor.prototype.getName = function () {
   return this.options.name;
 };
 
 /**
  * Remove the root node from the editor
  */
-TreeEditor.prototype.clear = function () {
+SpaceApiEditor.prototype.clear = function () {
   if (this.node) {
     this.node.collapse();
     this.tbody.removeChild(this.node.getDom());
@@ -227,7 +227,7 @@ TreeEditor.prototype.clear = function () {
  * @param {Node} node
  * @private
  */
-TreeEditor.prototype._setRoot = function (node) {
+SpaceApiEditor.prototype._setRoot = function (node) {
   this.clear();
 
   this.node = node;
@@ -248,7 +248,7 @@ TreeEditor.prototype._setRoot = function (node) {
  *                                              the result is found ('field' or
  *                                              'value')
  */
-TreeEditor.prototype.search = function (text) {
+SpaceApiEditor.prototype.search = function (text) {
   var results;
   if (this.node) {
     this.content.removeChild(this.table);  // Take the table offline
@@ -265,7 +265,7 @@ TreeEditor.prototype.search = function (text) {
 /**
  * Expand all nodes
  */
-TreeEditor.prototype.expandAll = function () {
+SpaceApiEditor.prototype.expandAll = function () {
   if (this.node) {
     this.content.removeChild(this.table);  // Take the table offline
     this.node.expand();
@@ -276,7 +276,7 @@ TreeEditor.prototype.expandAll = function () {
 /**
  * Collapse all nodes
  */
-TreeEditor.prototype.collapseAll = function () {
+SpaceApiEditor.prototype.collapseAll = function () {
   if (this.node) {
     this.content.removeChild(this.table);  // Take the table offline
     this.node.collapse();
@@ -298,7 +298,7 @@ TreeEditor.prototype.collapseAll = function () {
  *                         needed to undo or redo the action.
  * @private
  */
-TreeEditor.prototype._onAction = function (action, params) {
+SpaceApiEditor.prototype._onAction = function (action, params) {
   // add an action to the history
   if (this.history) {
     this.history.add(action, params);
@@ -320,7 +320,7 @@ TreeEditor.prototype._onAction = function (action, params) {
  * editor contents, or below the bottom.
  * @param {Number} mouseY  Absolute mouse position in pixels
  */
-TreeEditor.prototype.startAutoScroll = function (mouseY) {
+SpaceApiEditor.prototype.startAutoScroll = function (mouseY) {
   var me = this;
   var content = this.content;
   var top = util.getAbsoluteTop(content);
@@ -360,7 +360,7 @@ TreeEditor.prototype.startAutoScroll = function (mouseY) {
 /**
  * Stop auto scrolling. Only applicable when scrolling
  */
-TreeEditor.prototype.stopAutoScroll = function () {
+SpaceApiEditor.prototype.stopAutoScroll = function () {
   if (this.autoScrollTimer) {
     clearTimeout(this.autoScrollTimer);
     delete this.autoScrollTimer;
@@ -372,7 +372,7 @@ TreeEditor.prototype.stopAutoScroll = function () {
 
 
 /**
- * Set the focus to an element in the TreeEditor, set text selection, and
+ * Set the focus to an element in the SpaceApiEditor, set text selection, and
  * set scroll position.
  * @param {Object} selection  An object containing fields:
  *                            {Element | undefined} dom     The dom element
@@ -380,7 +380,7 @@ TreeEditor.prototype.stopAutoScroll = function () {
  *                            {Range | TextRange} range     A text selection
  *                            {Number} scrollTop            Scroll position
  */
-TreeEditor.prototype.setSelection = function (selection) {
+SpaceApiEditor.prototype.setSelection = function (selection) {
   if (!selection) {
     return;
   }
@@ -405,9 +405,9 @@ TreeEditor.prototype.setSelection = function (selection) {
  *                            {Range | TextRange} range     A text selection
  *                            {Number} scrollTop            Scroll position
  */
-TreeEditor.prototype.getSelection = function () {
+SpaceApiEditor.prototype.getSelection = function () {
   return {
-    dom: TreeEditor.domFocus,
+    dom: SpaceApiEditor.domFocus,
     scrollTop: this.content ? this.content.scrollTop : 0,
     range: util.getSelectionOffset()
   };
@@ -422,7 +422,7 @@ TreeEditor.prototype.getSelection = function () {
  *                                         when animation is finished, or false
  *                                         when not.
  */
-TreeEditor.prototype.scrollTo = function (top, callback) {
+SpaceApiEditor.prototype.scrollTo = function (top, callback) {
   var content = this.content;
   if (content) {
     var editor = this;
@@ -473,7 +473,7 @@ TreeEditor.prototype.scrollTo = function (top, callback) {
  * Create main frame
  * @private
  */
-TreeEditor.prototype._createFrame = function () {
+SpaceApiEditor.prototype._createFrame = function () {
   // create the frame
   this.frame = document.createElement('div');
   this.frame.className = 'jsoneditor';
@@ -489,7 +489,7 @@ TreeEditor.prototype._createFrame = function () {
 
     onEvent(event);
 
-    // prevent default submit action of buttons when TreeEditor is located
+    // prevent default submit action of buttons when SpaceApiEditor is located
     // inside a form
     if (target.nodeName == 'BUTTON') {
       event.preventDefault();
@@ -583,7 +583,7 @@ TreeEditor.prototype._createFrame = function () {
  * Perform an undo action
  * @private
  */
-TreeEditor.prototype._onUndo = function () {
+SpaceApiEditor.prototype._onUndo = function () {
   if (this.history) {
     // undo last action
     this.history.undo();
@@ -599,7 +599,7 @@ TreeEditor.prototype._onUndo = function () {
  * Perform a redo action
  * @private
  */
-TreeEditor.prototype._onRedo = function () {
+SpaceApiEditor.prototype._onRedo = function () {
   if (this.history) {
     // redo last action
     this.history.redo();
@@ -616,7 +616,7 @@ TreeEditor.prototype._onRedo = function () {
  * @param event
  * @private
  */
-TreeEditor.prototype._onEvent = function (event) {
+SpaceApiEditor.prototype._onEvent = function (event) {
   var target = event.target;
 
   if (event.type == 'keydown') {
@@ -624,7 +624,7 @@ TreeEditor.prototype._onEvent = function (event) {
   }
 
   if (event.type == 'focus') {
-    TreeEditor.domFocus = target;
+    SpaceApiEditor.domFocus = target;
   }
 
   var node = Node.getNodeFromTarget(target);
@@ -638,7 +638,7 @@ TreeEditor.prototype._onEvent = function (event) {
  * @param {Event} event
  * @private
  */
-TreeEditor.prototype._onKeyDown = function (event) {
+SpaceApiEditor.prototype._onKeyDown = function (event) {
   var keynum = event.which || event.keyCode;
   var ctrlKey = event.ctrlKey;
   var shiftKey = event.shiftKey;
@@ -647,7 +647,7 @@ TreeEditor.prototype._onKeyDown = function (event) {
   if (keynum == 9) { // Tab or Shift+Tab
     setTimeout(function () {
       // select all text when moving focus to an editable div
-      util.selectContentEditable(TreeEditor.domFocus);
+      util.selectContentEditable(SpaceApiEditor.domFocus);
     }, 0);
   }
 
@@ -695,7 +695,7 @@ TreeEditor.prototype._onKeyDown = function (event) {
  * Create main table
  * @private
  */
-TreeEditor.prototype._createTable = function () {
+SpaceApiEditor.prototype._createTable = function () {
   var contentOuter = document.createElement('div');
   contentOuter.className = 'outer';
   this.contentOuter = contentOuter;
@@ -731,25 +731,7 @@ TreeEditor.prototype._createTable = function () {
 };
 
 // register modes at the JSONEditor
-JSONEditor.modes.tree = {
-  editor: TreeEditor,
-  data: 'json'
-};
-JSONEditor.modes.view = {
-  editor: TreeEditor,
-  data: 'json'
-};
-JSONEditor.modes.form = {
-  editor: TreeEditor,
-  data: 'json'
-};
-
-// Deprecated modes (deprecated since version 2.2.0)
-JSONEditor.modes.editor = {
-  editor: TreeEditor,
-  data: 'json'
-};
-JSONEditor.modes.viewer = {
-  editor: TreeEditor,
+JSONEditor.modes.spaceapi = {
+  editor: SpaceApiEditor,
   data: 'json'
 };
