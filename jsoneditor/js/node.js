@@ -1,6 +1,7 @@
 /**
- * @constructor Node
  * Create a new Node
+ *
+ * @constructor Node
  * @param {TreeEditor} editor
  * @param {Object} [params] Can contain parameters:
  *                          {string}  field
@@ -2232,6 +2233,8 @@ Node.prototype._onInsertAfter = function (field, value, type) {
  */
 Node.prototype._onAppend = function (field, value, type) {
   var oldSelection = this.editor.getSelection();
+
+  console.log("onAppend", field, value, type);
 
   var newNode = new Node(this.editor, {
     'field': (field != undefined) ? field : '',

@@ -1,6 +1,7 @@
 /**
- * @constructor SearchBox
  * Create a search box in given HTML container
+ *
+ * @constructor SearchBox
  * @param {JSONEditor} editor    The JSON Editor to attach to
  * @param {Element} container               HTML container element of where to
  *                                          create the search box

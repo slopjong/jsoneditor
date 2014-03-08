@@ -1,6 +1,7 @@
 /**
- * @constructor History
  * Store action history, enables undo and redo
+ *
+ * @constructor History
  * @param {JSONEditor} editor
  */
 function History (editor) {
