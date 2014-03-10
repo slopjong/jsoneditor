@@ -42,6 +42,7 @@ function ContextMenu (items, options) {
 
   function createMenuItems (list, domItems, items) {
     items.forEach(function (item) {
+
       if (item.type == 'separator') {
         // create a separator
         var separator = document.createElement('div');
@@ -118,7 +119,17 @@ function ContextMenu (items, options) {
           domItem.ul = ul;
           ul.className = 'menu';
           ul.style.height = '0';
+
+          //var insert_style = "";
+          if (item.text === 'Insert' && item.submenu.length * 24 > 192) {
+            //insert_style = "max-height: 188px; overflow-y: scroll; width: 92%;";
+            ul.style.maxHeight = '188px';
+            ul.style.overflowY = 'scroll';
+            ul.style.width = '92%';
+          }
+
           li.appendChild(ul);
+
           createMenuItems(ul, domSubItems, item.submenu);
         }
         else {
