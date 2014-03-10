@@ -2476,7 +2476,9 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
       });
     }
 
-    items.push(insert_menu);
+    if (insert_menu.submenu.length) {
+      items.push(insert_menu);
+    }
 
     // create remove button
     items.push({
