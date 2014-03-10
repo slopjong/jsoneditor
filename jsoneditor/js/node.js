@@ -177,40 +177,6 @@ Node.prototype.getLevel = function() {
 };
 
 /**
- * Create a clone of a node
- * The complete state of a clone is copied, including whether it is expanded or
- * not. The DOM elements are not cloned.
- * @return {Node} clone
- */
-Node.prototype.clone = function() {
-  var clone = new Node(this.editor);
-  clone.type = this.type;
-  clone.field = this.field;
-  clone.fieldInnerText = this.fieldInnerText;
-  clone.fieldEditable = this.fieldEditable;
-  clone.value = this.value;
-  clone.valueInnerText = this.valueInnerText;
-  clone.expanded = this.expanded;
-
-  if (this.childs) {
-    // an object or array
-    var cloneChilds = [];
-    this.childs.forEach(function (child) {
-      var childClone = child.clone();
-      childClone.setParent(clone);
-      cloneChilds.push(childClone);
-    });
-    clone.childs = cloneChilds;
-  }
-  else {
-    // a value
-    clone.childs = undefined;
-  }
-
-  return clone;
-};
-
-/**
  * Expand this node and optionally its childs.
  * @param {boolean} [recurse] Optional recursion, true by default. When
  *                            true, all childs will be expanded recursively
@@ -689,26 +655,6 @@ Node.prototype.blur = function() {
 };
 
 /**
- * Duplicate given child node
- * new structure will be added right before the cloned node
- * @param {Node} node           the childNode to be duplicated
- * @return {Node} clone         the clone of the node
- * @private
- */
-Node.prototype._duplicate = function(node) {
-  var clone = node.clone();
-
-  /* TODO: adjust the field name (to prevent equal field names)
-   if (this.type == 'object') {
-   }
-   */
-
-  this.insertAfter(clone, node);
-
-  return clone;
-};
-
-/**
  * Check if given node is a child. The method will check recursively to find
  * this node.
  * @param {Node} node
@@ -814,106 +760,6 @@ Node.prototype._remove = function (node) {
   this.removeChild(node);
 };
 
-/**
- * Change the type of the value of this Node
- * @param {String} newType
- */
-Node.prototype.changeType = function (newType) {
-  var oldType = this.type;
-
-  if (oldType == newType) {
-    // type is not changed
-    return;
-  }
-
-  if ((newType == 'string' || newType == 'auto') &&
-      (oldType == 'string' || oldType == 'auto')) {
-    // this is an easy change
-    this.type = newType;
-  }
-  else {
-    // change from array to object, or from string/auto to object/array
-    var table = this.dom.tr ? this.dom.tr.parentNode : undefined;
-    var lastTr;
-    if (this.expanded) {
-      lastTr = this.getAppend();
-    }
-    else {
-      lastTr = this.getDom();
-    }
-    var nextTr = (lastTr && lastTr.parentNode) ? lastTr.nextSibling : undefined;
-
-    // hide current field and all its childs
-    this.hide();
-    this.clearDom();
-
-    // adjust the field and the value
-    this.type = newType;
-
-    // adjust childs
-    if (newType == 'object') {
-      if (!this.childs) {
-        this.childs = [];
-      }
-
-      this.childs.forEach(function (child, index) {
-        child.clearDom();
-        delete child.index;
-        child.fieldEditable = true;
-        if (child.field == undefined) {
-          child.field = '';
-        }
-      });
-
-      if (oldType == 'string' || oldType == 'auto') {
-        this.expanded = true;
-      }
-    }
-    else if (newType == 'array') {
-      if (!this.childs) {
-        this.childs = [];
-      }
-
-      this.childs.forEach(function (child, index) {
-        child.clearDom();
-        child.fieldEditable = false;
-        child.index = index;
-      });
-
-      if (oldType == 'string' || oldType == 'auto') {
-        this.expanded = true;
-      }
-    }
-    else {
-      this.expanded = false;
-    }
-
-    // create new DOM
-    if (table) {
-      if (nextTr) {
-        table.insertBefore(this.getDom(), nextTr);
-      }
-      else {
-        table.appendChild(this.getDom());
-      }
-    }
-    this.showChilds();
-  }
-
-  if (newType == 'auto' || newType == 'string') {
-    // cast value to the correct type
-    if (newType == 'string') {
-      this.value = String(this.value);
-    }
-    else {
-      this.value = this._stringCast(String(this.value));
-    }
-
-    this.focus();
-  }
-
-  this.updateDom({'updateIndexes': true});
-};
 
 /**
  * Retrieve value from DOM
@@ -2145,25 +1991,6 @@ Node.prototype._onRemove = function() {
 };
 
 /**
- * Duplicate this node
- * @private
- */
-Node.prototype._onDuplicate = function() {
-  var oldSelection = this.editor.getSelection();
-  var clone = this.parent._duplicate(this);
-  clone.focus();
-  var newSelection = this.editor.getSelection();
-
-  this.editor._onAction('duplicateNode', {
-    'node': this,
-    'clone': clone,
-    'parent': this.parent,
-    'oldSelection': oldSelection,
-    'newSelection': newSelection
-  });
-};
-
-/**
  * Handle insert before event
  * @param {String} [field]
  * @param {*} [value]
@@ -2231,6 +2058,9 @@ Node.prototype._onInsertAfter = function (field, value, type) {
  * @private
  */
 Node.prototype._onAppend = function (field, value, type) {
+
+  console.log("_onAppend(field, value, type): ", field, value, type);
+
   var oldSelection = this.editor.getSelection();
 
   var newNode = new Node(this.editor, {
@@ -2239,7 +2069,8 @@ Node.prototype._onAppend = function (field, value, type) {
     'type': type
   });
   newNode.expand(true);
-  this.parent.appendChild(newNode);
+  this.appendChild(newNode);
+  this.expand(false);
   this.editor.highlighter.unhighlight();
   newNode.focus('field');
   var newSelection = this.editor.getSelection();
@@ -2250,28 +2081,6 @@ Node.prototype._onAppend = function (field, value, type) {
     'oldSelection': oldSelection,
     'newSelection': newSelection
   });
-};
-
-/**
- * Change the type of the node's value
- * @param {String} newType
- * @private
- */
-Node.prototype._onChangeType = function (newType) {
-  var oldType = this.type;
-  if (newType != oldType) {
-    var oldSelection = this.editor.getSelection();
-    this.changeType(newType);
-    var newSelection = this.editor.getSelection();
-
-    this.editor._onAction('changeType', {
-      'node': this,
-      'oldType': oldType,
-      'newType': newType,
-      'oldSelection': oldSelection,
-      'newSelection': newSelection
-    });
-  }
 };
 
 /**
@@ -2535,50 +2344,6 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   var titles = Node.TYPE_TITLES;
   var items = [];
 
-  items.push({
-    'text': 'Type',
-    'title': 'Change the type of this field',
-    'className': 'type-' + this.type,
-    'submenu': [
-      {
-        'text': 'Auto',
-        'className': 'type-auto' +
-            (this.type == 'auto' ? ' selected' : ''),
-        'title': titles.auto,
-        'click': function () {
-          node._onChangeType('auto');
-        }
-      },
-      {
-        'text': 'Array',
-        'className': 'type-array' +
-            (this.type == 'array' ? ' selected' : ''),
-        'title': titles.array,
-        'click': function () {
-          node._onChangeType('array');
-        }
-      },
-      {
-        'text': 'Object',
-        'className': 'type-object' +
-            (this.type == 'object' ? ' selected' : ''),
-        'title': titles.object,
-        'click': function () {
-          node._onChangeType('object');
-        }
-      },
-      {
-        'text': 'String',
-        'className': 'type-string' +
-            (this.type == 'string' ? ' selected' : ''),
-        'title': titles.string,
-        'click': function () {
-          node._onChangeType('string');
-        }
-      }
-    ]
-  });
-
   if (this._hasChilds()) {
     var direction = ((this.sort == 'asc') ? 'desc': 'asc');
     items.push({
@@ -2612,69 +2377,71 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   if (this.parent && this.parent._hasChilds()) {
 
     var possible_children = null;
-    if(this.editor.map_schema !== null && node.parent.field !== undefined)
-      possible_children = this.editor.map_schema[node.parent.field];
+    if(this.editor.map_schema !== null && node.parent.field !== undefined) {
+      possible_children = this.editor.map_schema[node.field];
+    }
 
     // create a separator
-    items.push({
-      'type': 'separator'
-    });
+//    items.push({
+//      'type': 'separator'
+//    });
 
     // create append button (for last child node only)
-    var childs = node.parent.childs;
-    if (node == childs[childs.length - 1]) {
-      var append_menu = {
-        'text': 'Append',
-        'title': 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
-        'submenuTitle': 'Select the type of the field to be appended',
-        'className': 'append',
-        'click': function () {
-          node._onAppend('', '', 'auto');
-        },
-        'submenu': [
-          {
-            'text': 'Auto',
-            'className': 'type-auto',
-            'title': titles.auto,
-            'click': function () {
-              node._onAppend('', '', 'auto');
-            }
-          },
-          {
-            'text': 'Array',
-            'className': 'type-array',
-            'title': titles.array,
-            'click': function () {
-              node._onAppend('', []);
-            }
-          },
-          {
-            'text': 'Object',
-            'className': 'type-object',
-            'title': titles.object,
-            'click': function () {
-              node._onAppend('', {});
-            }
-          },
-          {
-            'text': 'String',
-            'className': 'type-string',
-            'title': titles.string,
-            'click': function () {
-              node._onAppend('', '', 'string');
-            }
-          }
-        ]
-      };
-
-      if(possible_children)
-        node._addItemsToMenu(possible_children, append_menu, function ()
-        {
-          node._onAppend(this.title, this.value);
-        });
-
-      items.push(append_menu);
-    }
+//    var childs = node.parent.childs;
+//    if (node == childs[childs.length - 1]) {
+//      var append_menu = {
+//        'text': 'Append',
+//        'title': 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
+//        'submenuTitle': 'Select the type of the field to be appended',
+//        'className': 'append',
+//        'click': function () {
+//          node._onAppend('', '', 'auto');
+//        },
+//        'submenu': [
+//          {
+//            'text': 'Auto',
+//            'className': 'type-auto',
+//            'title': titles.auto,
+//            'click': function () {
+//              node._onAppend('', '', 'auto');
+//            }
+//          },
+//          {
+//            'text': 'Array',
+//            'className': 'type-array',
+//            'title': titles.array,
+//            'click': function () {
+//              node._onAppend('', []);
+//            }
+//          },
+//          {
+//            'text': 'Object',
+//            'className': 'type-object',
+//            'title': titles.object,
+//            'click': function () {
+//              node._onAppend('', {});
+//            }
+//          },
+//          {
+//            'text': 'String',
+//            'className': 'type-string',
+//            'title': titles.string,
+//            'click': function () {
+//              node._onAppend('', '', 'string');
+//            }
+//          }
+//        ]
+//      };
+//
+//      if(possible_children)
+//        node._addItemsToMenu(possible_children, append_menu, function ()
+//        {
+//          console.log(this.title, this.value);
+//          node._onAppend(this.title, this.value);
+//        });
+//
+//      items.push(append_menu);
+//    }
 
     // create insert button
     var insert_menu = {
@@ -2685,59 +2452,31 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
       'click': function () {
         node._onInsertBefore('', '', 'auto');
       },
+
       'submenu': [
-        {
-          'text': 'Auto',
-          'className': 'type-auto',
-          'title': titles.auto,
-          'click': function () {
-            node._onInsertBefore('', '', 'auto');
-          }
-        },
-        {
-          'text': 'Array',
-          'className': 'type-array',
-          'title': titles.array,
-          'click': function () {
-            node._onInsertBefore('', []);
-          }
-        },
-        {
-          'text': 'Object',
-          'className': 'type-object',
-          'title': titles.object,
-          'click': function () {
-            node._onInsertBefore('', {});
-          }
-        },
-        {
-          'text': 'String',
-          'className': 'type-string',
-          'title': titles.string,
-          'click': function () {
-            node._onInsertBefore('', '', 'string');
-          }
-        }
+        /*
+          Add here objects looking as follows
+         {
+         'text': 'Object',
+         'className': 'type-object',
+         'title': titles.object,
+         'click': function () {
+         node._onInsertBefore('', {});
+         }
+         }
+         */
       ]
     };
 
-    if(possible_children)
-      node._addItemsToMenu(possible_children, insert_menu, function ()
-      {
+    // schema menu entries
+    if(possible_children) {
+      node._addItemsToMenu(possible_children, insert_menu, function () {
+        // we can inject the schema field names here as the title
         node._onAppend(this.title, this.value);
       });
+    }
 
     items.push(insert_menu);
-
-    // create duplicate button
-    items.push({
-      'text': 'Duplicate',
-      'title': 'Duplicate this field (Ctrl+D)',
-      'className': 'duplicate',
-      'click': function () {
-        node._onDuplicate();
-      }
-    });
 
     // create remove button
     items.push({
@@ -2756,27 +2495,29 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
 
 Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
 {
-  var separator = {'type': 'separator'};
   var items_retrieved = this._analyseSchema(possible_children, onclick);
-  menu.submenu = menu.submenu.concat(separator, items_retrieved);
+  menu.submenu = menu.submenu.concat(items_retrieved);
 };
 
 Node.prototype._analyseSchema = function (schema, onclick)
 {
+  util.log("_analyseSchema");
   var items = [];
   var types = ['array', 'string', 'object'];
+
   schema.forEach(function(obj) {
+
     var text = obj.id;
     var class_name = "type-" + (types.indexOf(obj.type) < 0 ? "auto" : obj.type);
     var value = {};
-    if(obj.default === undefined)
-      switch(obj.type)
-      {
-        case "object": value = {}; break;
-        case "array" : value = []; break;
-        case "string": value = ""; break;
-      }
-    else value = obj.default;
+
+    switch(obj.type)
+    {
+      case "object": value = {}; break;
+      case "array" : value = []; break;
+      case "string": value = ""; break;
+    }
+
     items.push(
     {
       "text": text,

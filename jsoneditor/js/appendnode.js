@@ -1,9 +1,9 @@
 /**
+ * Create a new AppendNode. This is a special node which is created at the
+ * end of the list with childs for an object or array
  * @constructor AppendNode
  * @extends Node
  * @param {TreeEditor} editor
- * Create a new AppendNode. This is a special node which is created at the
- * end of the list with childs for an object or array
  */
 function AppendNode (editor) {
   /** @type {TreeEditor} */
@@ -113,19 +113,31 @@ AppendNode.prototype.isVisible = function () {
 };
 
 /**
- * Show a contextmenu for this node
+ * Show a contextmenu for this node. This method is always called
+ * whenever the user clicks on the actions menu. The menu entries
+ * are not cached but re-generated every time.
  * @param {HTMLElement} anchor   The element to attach the menu to.
  * @param {function} [onClose]   Callback method called when the context menu
  *                               is being closed.
  */
 AppendNode.prototype.showContextMenu = function (anchor, onClose) {
+
   var node = this;
   var titles = Node.TYPE_TITLES;
   var possible_children = null;
 
-  if(this.editor.map_schema !== null && node.parent.field !== undefined)
+  console.log('showContextMenu fucking fails');
+  if(this.editor.map_schema !== null && node.parent.field !== undefined) {
     possible_children = this.editor.map_schema[node.parent.field];
+    console.log("showContextMenu(anchor, onClose)", anchor, onClose);
+    console.log("showContextMenu(), this.editor.map_schema", this.editor.map_schema);
+    console.log("showContextMenu(), possible_children", possible_children);
+  } else {
+    console.log("map_schema null or parent.field is undefined");
+  }
 
+
+//  return false;
   var append_menu = {
     'text': 'Append',
     'title': 'Append a new field with type \'auto\' (Ctrl+Shift+Ins)',
@@ -135,45 +147,47 @@ AppendNode.prototype.showContextMenu = function (anchor, onClose) {
       node._onAppend('', '', 'auto');
     },
     'submenu': [
-      {
-        'text': 'Auto',
-        'className': 'type-auto',
-        'title': titles.auto,
-        'click': function () {
-          node._onAppend('', '', 'auto');
-        }
-      },
-      {
-        'text': 'Array',
-        'className': 'type-array',
-        'title': titles.array,
-        'click': function () {
-          node._onAppend('', []);
-        }
-      },
-      {
-        'text': 'Object',
-        'className': 'type-object',
-        'title': titles.object,
-        'click': function () {
-          node._onAppend('', {});
-        }
-      },
-      {
-        'text': 'String',
-        'className': 'type-string',
-        'title': titles.string,
-        'click': function () {
-          node._onAppend('', '', 'string');
-        }
-      }
+//      {
+//        'text': 'Auto',
+//        'className': 'type-auto',
+//        'title': titles.auto,
+//        'click': function () {
+//          node._onAppend('', '', 'auto');
+//        }
+//      },
+//      {
+//        'text': 'Array',
+//        'className': 'type-array',
+//        'title': titles.array,
+//        'click': function () {
+//          node._onAppend('', []);
+//        }
+//      },
+//      {
+//        'text': 'Object',
+//        'className': 'type-object',
+//        'title': titles.object,
+//        'click': function () {
+//          node._onAppend('', {});
+//        }
+//      },
+//      {
+//        'text': 'String',
+//        'className': 'type-string',
+//        'title': titles.string,
+//        'click': function () {
+//          node._onAppend('', '', 'string');
+//        }
+//      }
     ]
   };
-  if(possible_children)
-    node._addItemsToMenu(possible_children, append_menu, function ()
-    {
+
+  if (possible_children) {
+    node._addItemsToMenu(possible_children, append_menu, function () {
       node._onAppend(this.title, this.value);
     });
+  }
+
 
   var items = [
     // create append button
@@ -206,15 +220,16 @@ AppendNode.prototype.onEvent = function (event) {
 
   // context menu events
   if (type == 'click' && target == dom.menu) {
+    console.log('onEvent() click');
     var highlighter = this.editor.highlighter;
     highlighter.highlight(this.parent);
     highlighter.lock();
     util.addClassName(dom.menu, 'selected');
-    this.showContextMenu(dom.menu, function () {
-      util.removeClassName(dom.menu, 'selected');
-      highlighter.unlock();
-      highlighter.unhighlight();
-    });
+//    this.showContextMenu(dom.menu, function () {
+//      util.removeClassName(dom.menu, 'selected');
+//      highlighter.unlock();
+//      highlighter.unhighlight();
+//    });
   }
 
   if (type == 'keydown') {

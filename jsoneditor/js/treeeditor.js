@@ -50,6 +50,7 @@ TreeEditor.prototype._create = function (container, options, json) {
   this.set(json || {});
 
   this.schemas = options.schemas;
+  console.log("_create");
   this.selectSchema(options.name);
 };
 
@@ -58,12 +59,17 @@ TreeEditor.prototype._create = function (container, options, json) {
  * @param {String} name
  */
 TreeEditor.prototype.selectSchema = function(name) {
+  console.log("selectSchema(name)", name);
   if(name in this.schemas) {
     this.schema = this.schemas[name];
     this.map_schema = {};
+    console.log("selectSchema(), this.schema", this.schema);
     var type = "properties" in this.schema ? "properties" : "items";
+    console.log("selectSchema(), type:", type);
     this.mapSchema(name, this.schema[type]);
     this.setName(name);
+
+    console.log("selectSchema(), map_schema:", this.map_schema);
   }
   else {
     this.schema = null;
@@ -72,15 +78,38 @@ TreeEditor.prototype.selectSchema = function(name) {
   }
 };
 
+/**
+ * Create a schema map recursively.
+ * @param parent
+ * @param sch
+ */
 TreeEditor.prototype.mapSchema = function(parent, sch) {
+
+  console.log("mapSchema(parent, sch)", parent, sch);
+
   for(var s in sch) {
-    if(this.map_schema[parent] === undefined)
+
+    if (this.map_schema[parent] === undefined) {
       this.map_schema[parent] = [];
+    }
+
+    // we need to set the 'id' attribute here in order to show the key
+    // as the insert/append menu title
+    sch[s].id = s;
+
     this.map_schema[parent].push(sch[s]);
-    if("properties" in sch[s])
-      this.mapSchema(sch[s].id, sch[s].properties);
-    if("items" in sch[s])
-      this.mapSchema(sch[s].id, sch[s].items);
+
+    console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
+
+    if (typeof sch[s] === "object") {
+      if ("properties" in sch[s]) {
+        this.mapSchema(sch[s].id, sch[s].properties);
+      }
+
+      if ("items" in sch[s]) {
+        this.mapSchema(sch[s].id, sch[s].items);
+      }
+    }
   }
 };
 
