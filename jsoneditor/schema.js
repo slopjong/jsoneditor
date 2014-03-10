@@ -1,5 +1,4 @@
 var schema = {
-  "id": "0.13",
   "description":"SpaceAPI 0.13",
   "type":"object",
   "properties":{
