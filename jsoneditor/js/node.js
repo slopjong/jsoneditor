@@ -2345,6 +2345,12 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   var items = [];
 
   if (this._hasChilds()) {
+
+    var possible_children = null;
+    if(this.editor.map_schema !== null /*&& node.parent.field !== undefined*/) {
+      possible_children = this.editor.map_schema[node.field];
+    }
+
     var direction = ((this.sort == 'asc') ? 'desc': 'asc');
     items.push({
       'text': 'Sort',
@@ -2372,76 +2378,6 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
         }
       ]
     });
-  }
-
-  if (this.parent && this.parent._hasChilds()) {
-
-    var possible_children = null;
-    if(this.editor.map_schema !== null && node.parent.field !== undefined) {
-      possible_children = this.editor.map_schema[node.field];
-    }
-
-    // create a separator
-//    items.push({
-//      'type': 'separator'
-//    });
-
-    // create append button (for last child node only)
-//    var childs = node.parent.childs;
-//    if (node == childs[childs.length - 1]) {
-//      var append_menu = {
-//        'text': 'Append',
-//        'title': 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
-//        'submenuTitle': 'Select the type of the field to be appended',
-//        'className': 'append',
-//        'click': function () {
-//          node._onAppend('', '', 'auto');
-//        },
-//        'submenu': [
-//          {
-//            'text': 'Auto',
-//            'className': 'type-auto',
-//            'title': titles.auto,
-//            'click': function () {
-//              node._onAppend('', '', 'auto');
-//            }
-//          },
-//          {
-//            'text': 'Array',
-//            'className': 'type-array',
-//            'title': titles.array,
-//            'click': function () {
-//              node._onAppend('', []);
-//            }
-//          },
-//          {
-//            'text': 'Object',
-//            'className': 'type-object',
-//            'title': titles.object,
-//            'click': function () {
-//              node._onAppend('', {});
-//            }
-//          },
-//          {
-//            'text': 'String',
-//            'className': 'type-string',
-//            'title': titles.string,
-//            'click': function () {
-//              node._onAppend('', '', 'string');
-//            }
-//          }
-//        ]
-//      };
-//
-//      if(possible_children)
-//        node._addItemsToMenu(possible_children, append_menu, function ()
-//        {
-//          console.log(this.title, this.value);
-//          node._onAppend(this.title, this.value);
-//        });
-//
-//      items.push(append_menu);
-//    }
 
     // create insert button
     var insert_menu = {
@@ -2455,7 +2391,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
 
       'submenu': [
         /*
-          Add here objects looking as follows
+         Add here objects looking as follows
          {
          'text': 'Object',
          'className': 'type-object',
@@ -2479,7 +2415,9 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     if (insert_menu.submenu.length) {
       items.push(insert_menu);
     }
+  }
 
+  if (this.parent && this.parent._hasChilds()) {
     // create remove button
     items.push({
       'text': 'Remove',
