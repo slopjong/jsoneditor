@@ -2059,7 +2059,7 @@ Node.prototype._onInsertAfter = function (field, value, type) {
  */
 Node.prototype._onAppend = function (field, value, type) {
 
-  console.log("_onAppend(field, value, type): ", field, value, type);
+//  console.log("_onAppend(field, value, type): ", field, value, type);
 
   var oldSelection = this.editor.getSelection();
 

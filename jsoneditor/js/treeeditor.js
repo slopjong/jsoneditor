@@ -50,7 +50,7 @@ TreeEditor.prototype._create = function (container, options, json) {
   this.set(json || {});
 
   this.schemas = options.schemas;
-  console.log("_create");
+//  console.log("_create");
   this.selectSchema(options.name);
 };
 
@@ -59,17 +59,17 @@ TreeEditor.prototype._create = function (container, options, json) {
  * @param {String} name
  */
 TreeEditor.prototype.selectSchema = function(name) {
-  console.log("selectSchema(name)", name);
+//  console.log("selectSchema(name)", name);
   if(name in this.schemas) {
     this.schema = this.schemas[name];
     this.map_schema = {};
-    console.log("selectSchema(), this.schema", this.schema);
+//    console.log("selectSchema(), this.schema", this.schema);
     var type = "properties" in this.schema ? "properties" : "items";
-    console.log("selectSchema(), type:", type);
+//    console.log("selectSchema(), type:", type);
     this.mapSchema(name, this.schema[type]);
     this.setName(name);
 
-    console.log("selectSchema(), map_schema:", this.map_schema);
+//    console.log("selectSchema(), map_schema:", this.map_schema);
   }
   else {
     this.schema = null;
@@ -85,7 +85,7 @@ TreeEditor.prototype.selectSchema = function(name) {
  */
 TreeEditor.prototype.mapSchema = function(parent, sch) {
 
-  console.log("mapSchema(parent, sch)", parent, sch);
+//  console.log("mapSchema(parent, sch)", parent, sch);
 
   for(var s in sch) {
 
@@ -99,7 +99,7 @@ TreeEditor.prototype.mapSchema = function(parent, sch) {
 
     this.map_schema[parent].push(sch[s]);
 
-    console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
+//    console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
 
     if (typeof sch[s] === "object") {
       if ("properties" in sch[s]) {
