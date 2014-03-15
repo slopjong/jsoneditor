@@ -2059,8 +2059,6 @@ Node.prototype._onInsertAfter = function (field, value, type) {
  */
 Node.prototype._onAppend = function (field, value, type) {
 
-//  console.log("_onAppend(field, value, type): ", field, value, type);
-
   var oldSelection = this.editor.getSelection();
 
   var newNode = new Node(this.editor, {
@@ -2068,6 +2066,7 @@ Node.prototype._onAppend = function (field, value, type) {
     'value': (value != undefined) ? value : '',
     'type': type
   });
+
   newNode.expand(true);
   this.appendChild(newNode);
   this.expand(false);
@@ -2407,8 +2406,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     // schema menu entries
     if(possible_children) {
       node._addItemsToMenu(possible_children, insert_menu, function () {
-        // we can inject the schema field names here as the title
-        node._onAppend(this.title, this.value);
+        node._onAppend(this.title, this.value, this.type);
       });
     }
 
@@ -2441,21 +2439,37 @@ Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
 
 Node.prototype._analyseSchema = function (schema, onclick)
 {
-  util.log("_analyseSchema");
   var items = [];
   var types = ['array', 'string', 'object'];
 
-  schema.forEach(function(obj) {
+  schema.forEach(function(subschema) {
 
-    var text = obj.id;
-    var class_name = "type-" + (types.indexOf(obj.type) < 0 ? "auto" : obj.type);
+    var text = subschema.id;
+    var class_name = "type-" + (types.indexOf(subschema.type) < 0 ? "auto" : subschema.type);
     var value = {};
+    var type = '';
 
-    switch(obj.type)
+    // the javascript type is stored in subschema.type while the type
+    // of subschema.type is a string in general, it's an array (= type 'object')
+    // for enums defined in the schema. In this case we reassign it the
+    // first non-null datatype from the enum.
+    if (typeof subschema.type === 'object') {
+      for(var i=0; i<subschema.type.length; i++) {
+        if (subschema.type[i] !== "null") {
+          type = subschema.type[i];
+        }
+      }
+    } else {
+      type = subschema.type;
+    }
+
+    switch(type)
     {
-      case "object": value = {}; break;
-      case "array" : value = []; break;
-      case "string": value = ""; break;
+      case "object":  value = {};     break;
+      case "array" :  value = [];     break;
+      case "string":  value = "";     break;
+      case "number":  value = 0;      break;
+      case "boolean": value = false;  break;
     }
 
     items.push(
