@@ -64,6 +64,7 @@ AppendNode.prototype.getDom = function () {
  * Update the HTML dom of the Node
  */
 AppendNode.prototype.updateDom = function () {
+
   var dom = this.dom;
   var tdAppend = dom.td;
   if (tdAppend) {
@@ -71,14 +72,22 @@ AppendNode.prototype.updateDom = function () {
     // TODO: not so nice hard coded offset
   }
 
-  var domText = dom.text;
-  if (domText) {
-    domText.innerHTML = '(empty ' + this.parent.type + ')';
-  }
-
   // attach or detach the contents of the append node:
   // hide when the parent has childs, show when the parent has no childs
   var trAppend = dom.tr;
+
+  var domText = dom.text;
+  if (domText) {
+    domText.innerHTML = '(empty ' + this.parent.type + ')';
+
+    var collection = dom.tdMenu.getElementsByClassName('contextmenu');
+    if (collection instanceof HTMLCollection) {
+      if (collection.length) {
+        collection.item(0).style.display = "none";
+      }
+    }
+  }
+
   if (!this.isVisible()) {
     if (dom.tr.firstChild) {
       if (dom.tdDrag) {
@@ -126,16 +135,9 @@ AppendNode.prototype.showContextMenu = function (anchor, onClose) {
   var titles = Node.TYPE_TITLES;
   var possible_children = null;
 
-  console.log('showContextMenu fucking fails');
   if(this.editor.map_schema !== null && node.parent.field !== undefined) {
     possible_children = this.editor.map_schema[node.parent.field];
-    console.log("showContextMenu(anchor, onClose)", anchor, onClose);
-    console.log("showContextMenu(), this.editor.map_schema", this.editor.map_schema);
-    console.log("showContextMenu(), possible_children", possible_children);
-  } else {
-    console.log("map_schema null or parent.field is undefined");
   }
-
 
 //  return false;
   var append_menu = {
@@ -220,7 +222,6 @@ AppendNode.prototype.onEvent = function (event) {
 
   // context menu events
   if (type == 'click' && target == dom.menu) {
-    console.log('onEvent() click');
     var highlighter = this.editor.highlighter;
     highlighter.highlight(this.parent);
     highlighter.lock();
