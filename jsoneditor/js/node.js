@@ -2406,7 +2406,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     if(possible_children) {
       console.log(this.title);
       node._addItemsToMenu(possible_children, insert_menu, function () {
-        node._onAppend(this.title, this.value, this.type);
+        node._onAppend(this.text, this.value, this.type);
       });
     }
 
@@ -2439,12 +2439,19 @@ Node.prototype._addItemsToMenu = function (schemas, menu, onclick)
   schemas.forEach(function(schema) {
 
     var text = '';
+    var title = '';
     var class_name = 'type-';
     var value = {};
     var type = '';
 
     if (typeof schema === 'object') {
       text = schema.id;
+
+      if (schema.hasOwnProperty('description')) {
+        title = schema.description;
+      } else {
+        title = text;
+      }
 
       // the javascript type is stored in subschema.type while the type
       // of subschema.type is a string in general, it's an array (= type 'object')
@@ -2481,7 +2488,7 @@ Node.prototype._addItemsToMenu = function (schemas, menu, onclick)
       {
         "text": text,
         "className": class_name,
-        "title": text,
+        "title": title,
         "value": value,
         'click': onclick
       });
