@@ -92,7 +92,6 @@ TreeEditor.prototype.mapSchema = function(parent, schemas) {
     // as the insert/append menu title
     schemas[schema].id = schema;
 
-    console.log()
     this.map_schema[parent].push(schemas[schema]);
 
     //console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
