@@ -2475,14 +2475,17 @@ Node.prototype._addItemsToMenu = function (schemas, menu, onclick)
       case "boolean": value = false;  break;
     }
 
-    items.push(
-    {
-      "text": text,
-      "className": class_name,
-      "title": text,
-      "value": value,
-      'click': onclick
-    });
+    // don't push enums
+    if (text !== 'enum') {
+      items.push(
+      {
+        "text": text,
+        "className": class_name,
+        "title": text,
+        "value": value,
+        'click': onclick
+      });
+    }
   });
 
   menu.submenu = menu.submenu.concat(items);
