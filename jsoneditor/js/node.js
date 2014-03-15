@@ -2476,7 +2476,7 @@ Node.prototype._addItemsToMenu = function (schemas, menu, onclick)
     }
 
     // don't push enums
-    if (text !== 'enum') {
+    if (text !== 'enum' && text !== 'properties') {
       items.push(
       {
         "text": text,
