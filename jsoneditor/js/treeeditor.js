@@ -80,8 +80,6 @@ TreeEditor.prototype.selectSchema = function(name) {
  */
 TreeEditor.prototype.mapSchema = function(parent, schemas) {
 
-  //console.log("mapSchema(parent, sch)", parent, sch);
-
   for(var schema in schemas) {
 
     if (this.map_schema[parent] === undefined) {
@@ -94,15 +92,17 @@ TreeEditor.prototype.mapSchema = function(parent, schemas) {
 
     this.map_schema[parent].push(schemas[schema]);
 
-    //console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
-
     if (typeof schemas[schema] === "object") {
       if ("properties" in schemas[schema]) {
         this.mapSchema(schemas[schema].id, schemas[schema].properties);
       }
 
       if ("items" in schemas[schema]) {
-        this.mapSchema(schemas[schema].id, schemas[schema].items);
+        if (schemas[schema].items.type === 'object') {
+          this.mapSchema(schemas[schema].id, schemas[schema].items.properties);
+        } else {
+          this.mapSchema(schemas[schema].id, schemas[schema].items);
+        }
       }
     }
   }
