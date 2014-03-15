@@ -2431,43 +2431,37 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   menu.show(anchor);
 };
 
-Node.prototype._addItemsToMenu = function (possible_children, menu, onclick)
-{
-  var items_retrieved = this._analyseSchema(possible_children, onclick);
-  menu.submenu = menu.submenu.concat(items_retrieved);
-};
-
-Node.prototype._analyseSchema = function (schema, onclick)
+Node.prototype._addItemsToMenu = function (schemas, menu, onclick)
 {
   var items = [];
   var types = ['array', 'string', 'object'];
 
-  schema.forEach(function(subschema) {
+  schemas.forEach(function(schema) {
 
     var text = '';
     var class_name = 'type-';
     var value = {};
     var type = '';
 
-    if (typeof subschema === 'object') {
-      text = subschema.id;
+    if (typeof schema === 'object') {
+      text = schema.id;
 
       // the javascript type is stored in subschema.type while the type
       // of subschema.type is a string in general, it's an array (= type 'object')
       // for enums defined in the schema. In this case we reassign it the
       // first non-null datatype from the enum.
-      if (typeof subschema.type === 'object') {
-        for(var i=0; i<subschema.type.length; i++) {
-          if (subschema.type[i] !== "null") {
-            type = subschema.type[i];
+      if (typeof schema.type === 'object') {
+        for(var i=0; i<schema.type.length; i++) {
+          if (schema.type[i] !== "null") {
+            type = schema.type[i];
           }
         }
       } else {
-        type = subschema.type;
+        type = schema.type;
       }
-    } else if (typeof subschema === 'string') {
-      text = subschema.charAt(0).toUpperCase() + subschema.slice(1);
-      type = subschema;
+    } else if (typeof schema === 'string') {
+      text = schema.charAt(0).toUpperCase() + schema.slice(1);
+      type = schema;
     }
 
     class_name += (types.indexOf(type) < 0 ? "auto" : type);
@@ -2490,7 +2484,8 @@ Node.prototype._analyseSchema = function (schema, onclick)
       'click': onclick
     });
   });
-  return items;
+
+  menu.submenu = menu.submenu.concat(items);
 };
 
 /**
