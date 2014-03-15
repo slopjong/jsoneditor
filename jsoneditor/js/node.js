@@ -1490,7 +1490,6 @@ Node.prototype._createDomExpandButton = function () {
   return expand;
 };
 
-
 /**
  * Create a DOM tree element, containing the expand/collapse button
  * @return {Element} domTree
@@ -2405,6 +2404,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
 
     // schema menu entries
     if(possible_children) {
+      console.log(this.title);
       node._addItemsToMenu(possible_children, insert_menu, function () {
         node._onAppend(this.title, this.value, this.type);
       });
@@ -2444,24 +2444,33 @@ Node.prototype._analyseSchema = function (schema, onclick)
 
   schema.forEach(function(subschema) {
 
-    var text = subschema.id;
-    var class_name = "type-" + (types.indexOf(subschema.type) < 0 ? "auto" : subschema.type);
+    var text = '';
+    var class_name = 'type-';
     var value = {};
     var type = '';
 
-    // the javascript type is stored in subschema.type while the type
-    // of subschema.type is a string in general, it's an array (= type 'object')
-    // for enums defined in the schema. In this case we reassign it the
-    // first non-null datatype from the enum.
-    if (typeof subschema.type === 'object') {
-      for(var i=0; i<subschema.type.length; i++) {
-        if (subschema.type[i] !== "null") {
-          type = subschema.type[i];
+    if (typeof subschema === 'object') {
+      text = subschema.id;
+
+      // the javascript type is stored in subschema.type while the type
+      // of subschema.type is a string in general, it's an array (= type 'object')
+      // for enums defined in the schema. In this case we reassign it the
+      // first non-null datatype from the enum.
+      if (typeof subschema.type === 'object') {
+        for(var i=0; i<subschema.type.length; i++) {
+          if (subschema.type[i] !== "null") {
+            type = subschema.type[i];
+          }
         }
+      } else {
+        type = subschema.type;
       }
-    } else {
-      type = subschema.type;
+    } else if (typeof subschema === 'string') {
+      text = subschema.charAt(0).toUpperCase() + subschema.slice(1);
+      type = subschema;
     }
+
+    class_name += (types.indexOf(type) < 0 ? "auto" : type);
 
     switch(type)
     {
