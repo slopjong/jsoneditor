@@ -59,17 +59,12 @@ TreeEditor.prototype._create = function (container, options, json) {
  * @param {String} name
  */
 TreeEditor.prototype.selectSchema = function(name) {
-//  console.log("selectSchema(name)", name);
   if(name in this.schemas) {
     this.schema = this.schemas[name];
     this.map_schema = {};
-//    console.log("selectSchema(), this.schema", this.schema);
     var type = "properties" in this.schema ? "properties" : "items";
-//    console.log("selectSchema(), type:", type);
     this.mapSchema(name, this.schema[type]);
     this.setName(name);
-
-//    console.log("selectSchema(), map_schema:", this.map_schema);
   }
   else {
     this.schema = null;
@@ -81,13 +76,13 @@ TreeEditor.prototype.selectSchema = function(name) {
 /**
  * Create a schema map recursively.
  * @param parent
- * @param sch
+ * @param schemas
  */
-TreeEditor.prototype.mapSchema = function(parent, sch) {
+TreeEditor.prototype.mapSchema = function(parent, schemas) {
 
-//  console.log("mapSchema(parent, sch)", parent, sch);
+  //console.log("mapSchema(parent, sch)", parent, sch);
 
-  for(var s in sch) {
+  for(var schema in schemas) {
 
     if (this.map_schema[parent] === undefined) {
       this.map_schema[parent] = [];
@@ -95,19 +90,20 @@ TreeEditor.prototype.mapSchema = function(parent, sch) {
 
     // we need to set the 'id' attribute here in order to show the key
     // as the insert/append menu title
-    sch[s].id = s;
+    schemas[schema].id = schema;
 
-    this.map_schema[parent].push(sch[s]);
+    console.log()
+    this.map_schema[parent].push(schemas[schema]);
 
-//    console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
+    //console.log("mapSchema(parent, sch), s sch[s]: ", s, sch[s]);
 
-    if (typeof sch[s] === "object") {
-      if ("properties" in sch[s]) {
-        this.mapSchema(sch[s].id, sch[s].properties);
+    if (typeof schemas[schema] === "object") {
+      if ("properties" in schemas[schema]) {
+        this.mapSchema(schemas[schema].id, schemas[schema].properties);
       }
 
-      if ("items" in sch[s]) {
-        this.mapSchema(sch[s].id, sch[s].items);
+      if ("items" in schemas[schema]) {
+        this.mapSchema(schemas[schema].id, schemas[schema].items);
       }
     }
   }
