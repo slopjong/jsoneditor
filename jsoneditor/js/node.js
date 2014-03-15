@@ -2404,7 +2404,6 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
 
     // schema menu entries
     if(possible_children) {
-      console.log(this.title);
       node._addItemsToMenu(possible_children, insert_menu, function () {
         node._onAppend(this.text, this.value, this.type);
       });

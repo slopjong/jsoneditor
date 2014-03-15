@@ -50,7 +50,6 @@ TreeEditor.prototype._create = function (container, options, json) {
   this.set(json || {});
 
   this.schemas = options.schemas;
-//  console.log("_create");
   this.selectSchema(options.name);
 };
 
